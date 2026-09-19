@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultPad | Secure local-first Vault</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    
+    <!-- 1. GOOGLE SEARCH CONSOLE -->
+    <meta name="google-site-verification" content="PASTE_YOUR_CODE_HERE" />
+
+    <!-- 2. GOOGLE ADSENSE -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- PREVIEW LIBRARIES -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #09090b; --sidebar: #121217; --border: #27272a; --text: #fafafa;
+            --muted: #a1a1aa; --accent: #ffffff; --primary: #3b82f6; --danger: #ef4444;
+            --success: #10b981; --glass: rgba(255, 255, 255, 0.03); --glass-hover: rgba(255, 255, 255, 0.08);
+        }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+        /* --- LOGIN --- */
+        #loginView { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at center, #18181b 0%, #09090b 100%); z-index: 9999; transition: opacity 0.5s ease; }
+        #loginView.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .login-card { width: 380px; text-align: center; padding: 40px; background: var(--sidebar); border: 1px solid var(--border); border-radius: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .login-logo { width: 80px; height: 80px; margin-bottom: 20px; }
+        input { width: 100%; padding: 14px; margin-bottom: 12px; background: var(--bg); border: 1px solid var(--border); color: #fff; border-radius: 12px; outline: none; text-align: center; font-size: 16px; }
+        .btn { width: 100%; padding: 12px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .btn-primary { background: var(--accent); color: #000; }
+        .login-footer { margin-top: 20px; display: flex; justify-content: center; gap: 15px; font-size: 11px; }
+        .login-footer a { color: var(--muted); text-decoration: none; }
+
+        /* --- APP VIEW --- */
+        #appView { display: none; grid-template-columns: 280px 1fr; height: 100vh; opacity: 0; transition: opacity 0.5s ease; }
+        #appView.visible { display: grid; opacity: 1; }
+        .sidebar { background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px; }
+        
+        .exit-btn { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: var(--glass); border: 1px solid var(--border); color: var(--muted); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: 600; margin-bottom: 24px; transition: 0.2s; }
+        .exit-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .vault-info { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        .progress { height: 5px; background: #27272a; border-radius: 10px; margin: 10px 0 20px; overflow: hidden; }
+        .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s ease; }
+        
+        .drop-zone { border: 2px dashed var(--border); padding: 25px; text-align: center; border-radius: 16px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .drop-zone:hover, .drop-zone.drag-active { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); color: var(--primary); }
+
+        .file-list { flex: 1; overflow-y: auto; margin: 20px 0; }
+        .file-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 10px; margin-bottom: 6px; background: var(--glass); border: 1px solid transparent; transition: 0.2s; }
+        .file-row:hover { background: var(--glass-hover); border-color: var(--border); }
+        .file-info { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+        .file-btns { display: flex; gap: 8px; }
+        .icon-btn { cursor: pointer; color: var(--muted); transition: 0.2s; padding: 4px; border-radius: 6px; }
+        .icon-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
+        .icon-btn.del:hover { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+        .main { display: flex; flex-direction: column; background: var(--bg); }
+        .toolbar { height: 60px; padding: 0 30px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--muted); }
+        #save-status { display: flex; align-items: center; gap: 8px; opacity: 0; transition: 0.3s; }
+        #save-status.active { opacity: 1; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+        .dot.saving { background: var(--primary); animation: pulse 1s infinite; }
+        .dot.saved { background: var(--success); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        textarea { flex: 1; background: transparent; border: none; color: #eee; padding: 40px; resize: none; outline: none; font-size: 16px; line-height: 1.8; }
+
+        /* --- PREVIEW MODAL --- */
+        #previewModal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { width: 90%; height: 90%; background: var(--sidebar); border: 1px solid var(--border); border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-header { padding: 15px 25px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { flex: 1; background: #000; overflow: auto; display: flex; justify-content: center; }
+        .docx-view { background: white; color: black; padding: 40px; width: 100%; max-width: 800px; font-family: serif; }
+        .text-view { width: 100%; padding: 30px; font-family: monospace; color: #00ff41; background: #050505; white-space: pre-wrap; font-size: 14px; }
+        iframe, img, video { width: 100%; height: 100%; object-fit: contain; border: none; }
+        .m-btn { background: #1e1e24; border: 1px solid var(--border); color: #fff; padding: 8px 16px; border-radius: 8px; cursor: pointer; text-decoration: none; font-size: 13px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div id="loginView">
+    <div class="login-card">
+        <img src="favicon.png" alt="VaultPad" class="login-logo">
+        <h2 style="color:#fff; margin-bottom: 8px; letter-spacing: -1.5px; font-size: 32px;">VaultPad</h2>
+        <p style="font-size: 14px; color: var(--muted); margin-bottom: 24px;">Secure local-first encrypted vault.</p>
+        <input id="passcode" type="password" placeholder="Passcode" autofocus autocomplete="off">
+        <button id="loginBtn" class="btn btn-primary" onclick="app.login()">Unlock Vault</button>
+        <div class="login-footer">
+            <a href="privacy.html">Privacy</a> <a href="content.html">Content</a> <a href="cookie.html">Cookies</a>
+        </div>
+    </div>
+</div>
+
+<div id="appView">
+    <aside class="sidebar">
+        <button class="exit-btn" onclick="location.reload()">Exit Vault</button>
+        <div class="vault-info">
+            <span class="vault-id" id="vaultId">VAULT</span>
+            <div class="storage-usage"><span id="storageText">0.00 MB Used</span></div>
+            <div class="progress"><div class="progress-bar" id="storageBar"></div></div>
+        </div>
+        <div class="drop-zone" id="dropZone">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Upload Content</span>
+        </div>
+        <input type="file" id="fileInput" hidden multiple>
+        <div class="file-list" id="fileList"></div>
+        
+        <!-- SIDEBAR AD -->
+        <div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;">
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="fluid" data-ad-layout-key="-gw-3+1f-3d+2z"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <div class="login-footer" style="margin-top:auto">
+            <a href="privacy.html">Privacy</a> <a href="content.html">Content</a> <a href="cookie.html">Cookies</a>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="toolbar"><span id="wordCount">0 words</span><div id="save-status"><div class="dot" id="status-dot"></div><span id="status-text">Saved</span></div></div>
+        <textarea id="editor" spellcheck="false" placeholder="Write something secret..."></textarea>
+    </main>
+</div>
+
+<div id="previewModal">
+    <div class="modal-content">
+        <div class="modal-header"><span id="previewName" style="font-weight: 700;">Preview</span><div style="display:flex; gap:10px;"><a id="downloadBtn" class="m-btn">Download</a><button class="m-btn" style="background:var(--danger); border:none" onclick="app.closePreview()">Close</button></div></div>
+        <div class="modal-body" id="previewBody"></div>
+    </div>
+</div>
+
+<script>
+class VaultApp {
+    constructor() { this.db = null; this.key = null; this.code = null; this.currentUrl = null; this.initDB(); this.setupEvents(); }
+    
+    async initDB() { 
+        const req = indexedDB.open("VaultPad_Final_Prod", 1); 
+        req.onupgradeneeded = e => e.target.result.createObjectStore("files", {keyPath: "id", autoIncrement: true}); 
+        req.onsuccess = e => { this.db = e.target.result; }; 
+    }
+
+    async login() {
+        const btn = document.getElementById("loginBtn"); const pass = document.getElementById("passcode").value; if(!pass) return; btn.disabled = true;
+        try {
+            this.code = pass; const enc = new TextEncoder(); const bKey = await crypto.subtle.importKey("raw", enc.encode(pass), "PBKDF2", false, ["deriveKey"]);
+            this.key = await crypto.subtle.deriveKey({name: "PBKDF2", salt: enc.encode("v-salt"), iterations: 100000, hash: "SHA-256"}, bKey, {name: "AES-GCM", length: 256}, false, ["encrypt", "decrypt"]);
+            await this.loadNote(); this.renderFiles(); await this.updateStorage();
+            document.getElementById("loginView").classList.add("hidden"); document.getElementById("appView").classList.add("visible");
+            document.getElementById("vaultId").innerText = "VAULT #" + pass.toUpperCase();
+        } catch (e) { btn.disabled = false; alert("Access Denied."); }
+    }
+
+    async encrypt(t) { const iv = crypto.getRandomValues(new Uint8Array(12)); const enc = await crypto.subtle.encrypt({name: "AES-GCM", iv}, this.key, new TextEncoder().encode(t)); return JSON.stringify({iv: Array.from(iv), data: Array.from(new Uint8Array(enc))}); }
+    async decrypt(j) { try { const {iv, data} = JSON.parse(j); const dec = await crypto.subtle.decrypt({name: "AES-GCM", iv: new Uint8Array(iv)}, this.key, new Uint8Array(data)); return new TextDecoder().decode(dec); } catch(e) { return ""; } }
+    
+    async loadNote() { const raw = localStorage.getItem(`note_${this.code}`); if(raw) document.getElementById("editor").value = await this.decrypt(raw); }
+    async saveNote() { localStorage.setItem(`note_${this.code}`, await this.encrypt(document.getElementById("editor").value)); document.getElementById("status-dot").className = "dot saved"; document.getElementById("status-text").innerText = "Saved"; setTimeout(() => document.getElementById("save-status").classList.remove("active"), 2000); }
+
+    handleUpload(files) {
+        const tx = this.db.transaction("files", "readwrite");
+        Array.from(files).forEach(f => tx.objectStore("files").add({vault: this.code, name: f.name, type: f.type, size: f.size, data: f}));
+        tx.oncomplete = () => { this.renderFiles(); this.updateStorage(); };
+    }
+
+    /* FIXED RENDER ENGINE */
+    renderFiles() {
+        const list = document.getElementById("fileList"); list.innerHTML = "";
+        this.db.transaction("files").objectStore("files").openCursor().onsuccess = e => {
+            const c = e.target.result;
+            if(c) {
+                if(c.value.vault === this.code) {
+                    const f = c.value; const id = c.key;
+                    const d = document.createElement("div"); d.className = "file-row";
+                    d.innerHTML = `<div class="file-info">${f.name}</div><div class="file-btns"><span class="icon-btn v">👁</span><span class="icon-btn d">✕</span></div>`;
+                    
+                    // Fixed listeners
+                    d.querySelector(".v").onclick = () => this.preview(f);
+                    d.querySelector(".d").onclick = (ev) => {
+                        ev.stopPropagation();
+                        const delTx = this.db.transaction("files", "readwrite");
+                        delTx.objectStore("files").delete(id);
+                        delTx.oncomplete = () => { this.renderFiles(); this.updateStorage(); };
+                    };
+                    list.appendChild(d);
+                }
+                c.continue();
+            }
+        };
+    }
+
+    /* ADVANCED PREVIEW ENGINE */
+    async preview(file) {
+        const body = document.getElementById("previewBody");
+        document.getElementById("previewName").innerText = file.name;
+        document.getElementById("previewModal").style.display = "flex";
+        if(this.currentUrl) URL.revokeObjectURL(this.currentUrl);
+        this.currentUrl = URL.createObjectURL(file.data);
+        document.getElementById("downloadBtn").href = this.currentUrl;
+        document.getElementById("downloadBtn").download = file.name;
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        try {
+            if(file.type.startsWith("image/")) body.innerHTML = `<img src="${this.currentUrl}">`;
+            else if(file.type.startsWith("video/")) body.innerHTML = `<video src="${this.currentUrl}" controls autoplay></video>`;
+            else if(ext === 'pdf') body.innerHTML = `<iframe src="${this.currentUrl}"></iframe>`;
+            else if(ext === 'docx') {
+                const res = await mammoth.convertToHtml({arrayBuffer: await file.data.arrayBuffer()});
+                body.innerHTML = `<div class="docx-view">${res.value}</div>`;
+            }
+            else if(ext === 'zip') {
+                const zip = await JSZip.loadAsync(await file.data.arrayBuffer());
+                let h = '<div style="padding:20px;color:#aaa"><h3>ZIP Contents:</h3>';
+                zip.forEach(p => h += `<div>📦 ${p}</div>`);
+                body.innerHTML = h + '</div>';
+            }
+            else if(['txt','js','css','py','html','md','json'].includes(ext)) {
+                body.innerHTML = `<div class="text-view">${(await file.data.text()).replace(/</g,"&lt;")}</div>`;
+            }
+            else body.innerHTML = `<div style="color:white;margin-top:100px">No preview for .${ext}</div>`;
+        } catch(e) { body.innerHTML = `<div style="color:red;margin-top:100px">Error loading file.</div>`; }
+    }
+
+    closePreview() { document.getElementById("previewModal").style.display = "none"; }
+
+    async updateStorage() {
+        let total = 0;
+        this.db.transaction("files").objectStore("files").openCursor().onsuccess = e => {
+            const c = e.target.result;
+            if(c) { if(c.value.vault === this.code) total += c.value.size; c.continue(); } 
+            else {
+                const mb = (total / (1024 * 1024)).toFixed(2);
+                document.getElementById("storageText").innerText = mb + " MB Used";
+                document.getElementById("storageBar").style.width = Math.min((total / (100 * 1024 * 1024)) * 100, 100) + "%";
+            }
+        };
+    }
+
+    setupEvents() {
+        document.getElementById("passcode").onkeydown = e => { if(e.key === "Enter") this.login(); };
+        const dz = document.getElementById("dropZone");
+        dz.onclick = () => document.getElementById("fileInput").click();
+        dz.ondragover = (e) => { e.preventDefault(); dz.classList.add("drag-active"); };
+        dz.ondragleave = () => dz.classList.remove("drag-active");
+        dz.ondrop = (e) => { e.preventDefault(); dz.classList.remove("drag-active"); this.handleUpload(e.dataTransfer.files); };
+        document.getElementById("fileInput").onchange = e => this.handleUpload(e.target.files);
+        document.getElementById("editor").oninput = () => { document.getElementById("save-status").classList.add("active"); document.getElementById("status-dot").className = "dot saving"; document.getElementById("status-text").innerText = "Saving..."; clearTimeout(this.timer); this.timer = setTimeout(() => this.saveNote(), 1000); };
+    }
+}
+const app = new VaultApp();
+</script>
+</body>
+</html>

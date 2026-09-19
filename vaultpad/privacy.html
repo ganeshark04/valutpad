@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | VaultPad</title>
+    
+
+<!-- GOOGLE SEARCH CONSOLE VERIFICATION -->
+    <meta name="google-site-verification" content="PASTE_YOUR_SEARCH_CONSOLE_CODE_HERE" />
+
+    <!-- GOOGLE ADSENSE GLOBAL SCRIPT -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+
+    <!-- Professional Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --background: #ffffff;
+            --foreground: #09090b; 
+            --muted: #f4f4f5; 
+            --muted-foreground: #71717a; 
+            --border: #e4e4e7; 
+            --radius: 0.5rem;
+            --primary: #2563eb; /* Brand Blue */
+            --primary-bg: #eff6ff; /* Light Blue BG */
+        }
+
+        /* Prevent flickering */
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html { 
+            scroll-behavior: smooth; 
+            -webkit-font-smoothing: antialiased; 
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+        }
+
+        /* --- STICKY HEADER --- */
+        header {
+            position: fixed; top: 0; width: 100%; height: 64px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 5%; z-index: 1000;
+        }
+
+        .logo {
+            font-weight: 800; font-size: 1.3rem;
+            text-decoration: none; color: var(--primary);
+            letter-spacing: -0.5px;
+        }
+
+        .back-btn {
+            text-decoration: none; color: var(--foreground);
+            font-size: 0.85rem; font-weight: 600;
+            padding: 8px 16px; border-radius: 8px;
+            border: 1px solid var(--border); transition: 0.2s;
+            background: #fff;
+        }
+        .back-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+
+        /* --- LAYOUT --- */
+        .wrapper {
+            max-width: 1100px; margin: 64px auto 0;
+            display: grid; grid-template-columns: 260px 1fr;
+            gap: 60px; padding: 60px 5%;
+        }
+
+        /* --- SIDEBAR --- */
+        aside { 
+            position: sticky; top: 110px; height: fit-content; 
+        }
+
+        .nav-list { list-style: none; }
+
+        .nav-link {
+            display: block; padding: 10px 16px; margin-bottom: 4px;
+            font-size: 0.9rem; font-weight: 500; text-decoration: none;
+            color: var(--muted-foreground); border-radius: 8px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover { color: var(--primary); background: var(--muted); }
+
+        /* Modern Active State */
+        .nav-link.active {
+            background: var(--primary-bg) !important;
+            color: var(--primary) !important;
+            font-weight: 700 !important;
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* --- CONTENT --- */
+        .page-title { margin-bottom: 50px; }
+        .page-title h1 {
+            font-size: 2.8rem; font-weight: 800;
+            color: var(--primary); letter-spacing: -1.5px;
+        }
+        .page-title p { color: var(--muted-foreground); font-size: 1rem; margin-top: 5px; }
+
+        section { 
+            margin-bottom: 80px; 
+            scroll-margin-top: 100px; /* Fix: Anchors won't hide behind header */
+        }
+
+        h2 {
+            font-size: 1.6rem; font-weight: 800;
+            margin-bottom: 20px; color: var(--primary);
+            border-bottom: 1px solid var(--border); padding-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        p { color: #475569; font-size: 1rem; margin-bottom: 15px; }
+
+        .policy-link {
+            color: var(--primary); text-decoration: none; font-weight: 700;
+        }
+        .policy-link:hover { text-decoration: underline; }
+
+        .bottom-buffer { height: 30vh; }
+
+        footer {
+            text-align: center; padding: 60px 0;
+            border-top: 1px solid var(--border); color: var(--muted-foreground);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 850px) {
+            .wrapper { grid-template-columns: 1fr; }
+            aside { display: none; }
+            .page-title h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo smart-back">VaultPad</a>
+    <a href="index.html" class="back-btn smart-back">← Back to Home</a>
+</header>
+
+<div class="wrapper">
+    <aside>
+        <ul class="nav-list">
+            <li><a href="#storage" class="nav-link active">Data Storage</a></li>
+            <li><a href="#logs" class="nav-link">Log Files</a></li>
+            <li><a href="#cookies" class="nav-link">Google Cookies</a></li>
+            <li><a href="#advertising" class="nav-link">Advertising</a></li>
+            <li><a href="#compliance" class="nav-link">GDPR & CCPA</a></li>
+            <li><a href="#contact" class="nav-link">Contact Us</a></li>
+        </ul>
+    </aside>
+
+    <main>
+        <div class="page-title">
+            <h1>Privacy Policy</h1>
+            <p>Last Updated: December 27, 2025</p>
+        </div>
+
+        <section id="storage">
+            <h2>Data Storage</h2>
+            <p>VaultPad is local-first. Your notes and files stay in your browser's IndexedDB. We do not have a database on our servers. Since we never receive your data, we cannot read it.</p>
+        </section>
+
+        <section id="logs">
+            <h2>Log Files</h2>
+            <p>Standard technical logs are used for security and performance analysis. These logs do not contain your private workspace content or secret pad names.</p>
+        </section>
+
+        <section id="cookies">
+            <h2>Google Cookies</h2>
+            <p>Google is a third-party vendor on our site. It uses cookies, known as DART cookies, to serve ads based upon their visit to VaultPad.</p>
+            <p><a class="policy-link" href="https://policies.google.com/technologies/ads" target="_blank">View Google Ad Policy →</a></p>
+        </section>
+
+        <section id="advertising">
+            <h2>Advertising</h2>
+            <p>Advertising partners may use cookies and web beacons on our site. These third-party ad servers use technology to measure the effectiveness of their advertising campaigns and personalize the content you see.</p>
+        </section>
+
+        <section id="compliance">
+            <h2>GDPR & CCPA</h2>
+            <p>We respect your data rights. Because your data is local to your device, you have 100% control over its access and deletion. Clearing your browser cache permanently removes all local data from this device.</p>
+        </section>
+
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <p>If you have questions about our local-first security model, please contact our technical team.</p>
+            <p style="font-weight: 800; color: var(--primary); font-size: 1.1rem;">Email: support@vaultpad.io</p>
+        </section>
+
+<!-- ADSENSE: POLICY BOTTOM BANNER -->
+        <div style="margin: 40px 0;">
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+        <div class="bottom-buffer"></div>
+    </main>
+</div>
+
+<footer>
+    © 2025 VaultPad — All rights reserved.
+</footer>
+
+<script>
+    // 1. INTELLIGENT NAVIGATION
+    const backLinks = document.querySelectorAll('.smart-back');
+    backLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (window.history.length > 1) { 
+                window.history.back(); 
+            } else { 
+                window.location.href = 'index.html'; 
+            }
+        });
+    });
+
+    // 2. ADVANCED INTERSECTION OBSERVER
+    // This accurately tracks which section is visible and highlights the sidebar
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+
+    const observerOptions = {
+        root: null,
+        rootMargin: '-15% 0px -70% 0px', // Trigger when section is near top
+        threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${id}`) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+        });
+    }, observerOptions);
+
+    sections.forEach(section => observer.observe(section));
+</script>
+
+</body>
+</html>
+
